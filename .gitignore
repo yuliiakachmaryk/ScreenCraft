@@ -7,6 +7,29 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# macOS system files
+.DS_Store
+
+# Client and Server specific
+client/node_modules/
+server/node_modules/
+client/package-lock.json
+server/package-lock.json
+client/.env
+server/.env
+client/.env.local
+server/.env.local
+client/dist/
+server/dist/
+client/build/
+server/build/
+client/.next/
+server/.next/
+client/coverage/
+server/coverage/
+client/.cache/
+server/.cache/
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 

@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+/* Regular weights */
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Italic weights */
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Denike';
+  src: local('Playfair Display'), local('Georgia'), local('Times New Roman');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+} 
