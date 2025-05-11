@@ -7,6 +7,9 @@ interface ContentItemState {
   currentItem: ContentItem | null;
   loading: boolean;
   error: string | null;
+  total: number;
+  currentPage: number;
+  itemsPerPage: number;
 }
 
 const initialState: ContentItemState = {
@@ -14,12 +17,15 @@ const initialState: ContentItemState = {
   currentItem: null,
   loading: false,
   error: null,
+  total: 0,
+  currentPage: 1,
+  itemsPerPage: 10,
 };
 
 export const fetchContentItems = createAsyncThunk(
   'contentItem/fetchAll',
-  async () => {
-    const response = await contentItemApi.getAll();
+  async ({ page = 1, limit = 10 }: { page?: number; limit?: number }) => {
+    const response = await contentItemApi.getAll(page, limit);
     return response.data;
   }
 );
@@ -79,6 +85,12 @@ const contentItemSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setPage: (state, action) => {
+      state.currentPage = action.payload;
+    },
+    setItemsPerPage: (state, action) => {
+      state.itemsPerPage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -88,7 +100,8 @@ const contentItemSlice = createSlice({
       })
       .addCase(fetchContentItems.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload.contentItems;
+        state.total = action.payload.total;
       })
       .addCase(fetchContentItems.rejected, (state, action) => {
         state.loading = false;
@@ -166,5 +179,5 @@ const contentItemSlice = createSlice({
   },
 });
 
-export const { clearError } = contentItemSlice.actions;
+export const { clearError, setPage, setItemsPerPage } = contentItemSlice.actions;
 export default contentItemSlice.reducer; 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { ContentItemService } from '../services/content-item.service';
 import { ContentItem } from '../schemas/content-item.schema';
 
@@ -12,8 +12,8 @@ export class ContentItemController {
   }
 
   @Get()
-  findAll() {
-    return this.contentItemService.findAll();
+  findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
+    return this.contentItemService.findAll(page, limit);
   }
 
   @Get(':id')

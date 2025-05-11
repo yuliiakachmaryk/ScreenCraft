@@ -11,7 +11,7 @@ export const Navigation = () => {
           <Link to="/">Home</Link>
         </li>
         <li>
-          <Link to="/content-items">Content Items</Link>
+          <Link to="/content-items">Content Library</Link>
         </li>
         <li>
           <Link to="/episodes">Episodes</Link>

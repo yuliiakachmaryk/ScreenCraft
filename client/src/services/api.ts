@@ -94,7 +94,8 @@ export const homeScreenApi = {
 };
 
 export const contentItemApi = {
-  getAll: () => api.get<ContentItem[]>('/content-items'),
+  getAll: (page = 1, limit = 10) => 
+    api.get<{ contentItems: ContentItem[]; total: number }>(`/content-items?page=${page}&limit=${limit}`),
   getById: (id: string) => api.get<ContentItem>(`/content-items/${id}`),
   create: (data: CreateContentItemRequest) =>
     api.post<ContentItem>('/content-items', data),

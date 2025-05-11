@@ -14,8 +14,24 @@ export class ContentItemService {
     return this.contentItemModel.create(createContentItemDto);
   }
 
-  async findAll(): Promise<ContentItem[]> {
-    return this.contentItemModel.find().populate('episodes').exec();
+  async findAll(page: number = 1, limit: number = 10): Promise<{ contentItems: ContentItem[]; total: number }> {
+    const skip = (page - 1) * limit;
+    
+    const [contentItems, total] = await Promise.all([
+      this.contentItemModel
+        .find()
+        .sort({ createdAt: 1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('episodes')
+        .exec(),
+      this.contentItemModel.countDocuments().exec()
+    ]);
+
+    return {
+      contentItems,
+      total
+    };
   }
 
   async findOne(id: string): Promise<ContentItem> {

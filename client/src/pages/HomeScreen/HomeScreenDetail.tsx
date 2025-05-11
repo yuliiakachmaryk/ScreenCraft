@@ -9,7 +9,7 @@ import {
   addContentToSection,
   removeContentFromSection,
 } from '../../store/slices/homeScreenSlice';
-import { fetchContentItems } from '../../store/slices/contentItemSlice';
+import { fetchContentItems, setPage, setItemsPerPage } from '../../store/slices/contentItemSlice';
 import { LoadingSpinner } from '../../components/LoadingSpinner/LoadingSpinner';
 import { ContentSection } from '../../components/ContentSection/ContentSection';
 import { ContentModal } from '../../components/HomeScreen/ContentModal';
@@ -64,11 +64,14 @@ export const HomeScreenDetail = () => {
     items: contentItems,
     loading: contentItemsLoading,
     error: contentItemsError,
+    total,
   } = useAppSelector((state) => state.contentItem);
   const [isEditing, setIsEditing] = useState(false);
   const [showContentModal, setShowContentModal] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [modalPage, setModalPage] = useState(1);
+  const [modalItemsPerPage, setModalItemsPerPage] = useState(10);
 
   useEffect(() => {
     if (id) {
@@ -109,10 +112,25 @@ export const HomeScreenDetail = () => {
     }
   };
 
+  const handleModalPageChange = (newPage: number) => {
+    setModalPage(newPage);
+    dispatch(setPage(newPage));
+    dispatch(fetchContentItems({ page: newPage, limit: modalItemsPerPage }));
+  };
+
+  const handleModalItemsPerPageChange = (newLimit: number) => {
+    setModalItemsPerPage(newLimit);
+    setModalPage(1);
+    dispatch(setItemsPerPage(newLimit));
+    dispatch(setPage(1));
+    dispatch(fetchContentItems({ page: 1, limit: newLimit }));
+  };
+
   const handleAddContent = async (sectionName: string) => {
     try {
       setSelectedSection(sectionName);
-      await dispatch(fetchContentItems()).unwrap();
+      setModalPage(1);
+      await dispatch(fetchContentItems({ page: 1, limit: modalItemsPerPage })).unwrap();
       setShowContentModal(true);
       setError(null);
     } catch (err) {
@@ -233,6 +251,11 @@ export const HomeScreenDetail = () => {
           loading={contentItemsLoading}
           onContentSelect={handleContentSelect}
           onClose={() => setShowContentModal(false)}
+          currentPage={modalPage}
+          itemsPerPage={modalItemsPerPage}
+          total={total}
+          onPageChange={handleModalPageChange}
+          onItemsPerPageChange={handleModalItemsPerPageChange}
         />
       )}
     </DetailContainer>
