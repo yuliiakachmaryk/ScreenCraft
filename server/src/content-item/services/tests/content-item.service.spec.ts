@@ -23,6 +23,7 @@ describe('ContentItemService', () => {
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
     findByIdAndDelete: jest.fn(),
+    countDocuments: jest.fn(),
     exec: jest.fn(),
   };
 
@@ -62,17 +63,29 @@ describe('ContentItemService', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of content items', async () => {
+    it('should return an array of content items with pagination', async () => {
       const contentItems = [mockContentItem];
-      const mockPopulate = jest.fn().mockReturnThis();
-      jest.spyOn(model, 'find').mockReturnValue({
-        populate: mockPopulate,
+      const mockQuery = {
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        populate: jest.fn().mockReturnThis(),
         exec: jest.fn().mockResolvedValue(contentItems),
+      };
+      jest.spyOn(model, 'find').mockReturnValue(mockQuery as any);
+      jest.spyOn(model, 'countDocuments').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(1),
       } as any);
 
-      const result = await service.findAll();
-      expect(result).toEqual(contentItems);
-      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      const result = await service.findAll(1, 10);
+      expect(result).toEqual({
+        contentItems,
+        total: 1
+      });
+      expect(mockQuery.sort).toHaveBeenCalledWith({ createdAt: 1 });
+      expect(mockQuery.skip).toHaveBeenCalledWith(0);
+      expect(mockQuery.limit).toHaveBeenCalledWith(10);
+      expect(mockQuery.populate).toHaveBeenCalledWith('episodes');
     });
   });
 
