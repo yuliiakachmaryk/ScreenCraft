@@ -5,8 +5,9 @@ interface ContentSectionProps {
   title: string;
   items?: ContentItem[];
   isEditing?: boolean;
-  onAddContent?: (contentId: string) => void;
+  onAddContent?: () => void;
   onRemoveContent?: (contentId: string) => void;
+  size?: number;
 }
 
 export const ContentSection = ({ 
@@ -14,16 +15,17 @@ export const ContentSection = ({
   items, 
   isEditing,
   onAddContent,
-  onRemoveContent 
+  onRemoveContent,
+  size = 3
 }: ContentSectionProps) => {
-  const displayItems = items?.slice(0, 3);
+  const displayItems = items?.slice(0, size);
 
   return (
     <Section>
       <SectionHeader>
         <SectionTitle>{title}</SectionTitle>
         {isEditing && (
-          <AddButton onClick={() => onAddContent?.('new-content-id')}>
+          <AddButton onClick={onAddContent}>
             Add Content
           </AddButton>
         )}
@@ -62,6 +64,7 @@ const SectionTitle = styled.h4`
   color: #dbdbdb;
   font-size: 1.2rem;
   margin: 0;
+
   font-family: Denike;
 `;
 
@@ -99,17 +102,17 @@ const AddButton = styled.button`
 `;
 
 const RemoveButton = styled.button`
-  background-color: transparent;
-  border: 1px solid #ff4444;
-  color: #ff4444;
-  padding: 0.25rem 0.5rem;
+  background: #ff4444;
+  color: white;
+  border: none;
   border-radius: 4px;
-  font-family: Denike;
+  padding: 0.25rem 0.5rem;
   cursor: pointer;
-  transition: all 0.2s;
+  font-family: Denike;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
 
   &:hover {
-    background-color: #ff4444;
-    color: #fff;
+    background: #ff6666;
   }
 `;

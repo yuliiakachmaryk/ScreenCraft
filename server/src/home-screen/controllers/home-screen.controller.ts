@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { HomeScreenService, PaginatedResponse } from '../services/home-screen.service';
 import { HomeScreenConfig } from '../schemas/home-screen.schema';
 
@@ -32,8 +32,30 @@ export class HomeScreenController {
   }
 
   @Put(':id/activate')
-  setActive(@Param('id') id: string) {
-    return this.homeScreenService.setActive(id);
+  async setActive(@Param('id') id: string) {
+    try {
+      return await this.homeScreenService.setActive(id);
+    } catch (error) {
+      if (error.message.includes('already active')) {
+        throw new HttpException({
+          statusCode: HttpStatus.CONFLICT,
+          message: error.message,
+          error: 'Conflict'
+        }, HttpStatus.CONFLICT);
+      }
+      if (error.message.includes('not found')) {
+        throw new HttpException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: error.message,
+          error: 'Not Found'
+        }, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to set home screen as active',
+        error: 'Internal Server Error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Delete(':id')

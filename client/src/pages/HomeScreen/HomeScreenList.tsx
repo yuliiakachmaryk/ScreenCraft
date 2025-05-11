@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
-
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchHomeScreens,
@@ -8,35 +6,41 @@ import {
   setPage,
   setLimit,
 } from '../../store/slices/homeScreenSlice';
-import { HomeScreen } from '../../types';
+import { HomeScreen } from '../../types/homeScreen';
 import { LoadingSpinner } from '../../components/LoadingSpinner/LoadingSpinner';
 import { HomeScreenCard } from '../../components/HomeScreenCard/HomeScreenCard';
 import { CreateModal } from '../../components/HomeScreen/CreateModal';
-import { DetailButton } from '../../components/HomeScreen/styles';
+import {
+  Container,
+  Header,
+  Title,
+  DetailButton,
+  Content,
+  EmptyState,
+  PaginationContainer,
+  PaginationInfo,
+  PaginationControls,
+  ItemsPerPageSelect,
+  PageNumbers,
+  PageNumber,
+} from '../../components/HomeScreen/styles';
 
 export const HomeScreenList = () => {
   const dispatch = useAppDispatch();
-  const { items: homeScreens, loading, pagination } = useAppSelector(
+  const { items: homeScreens, loading, total, page, limit } = useAppSelector(
     (state) => state.homeScreen
   );
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchHomeScreens({ page: pagination.page, limit: pagination.limit }));
-  }, [dispatch, pagination.page, pagination.limit]);
+    dispatch(fetchHomeScreens({ page, limit }));
+  }, [dispatch, page, limit]);
 
-  const handleCreate = async () => {
+  const handleCreateHomeScreen = async (data: Partial<HomeScreen>) => {
     try {
-      await dispatch(
-        createHomeScreen({
-          isActive: false,
-          recomendaciones: [],
-          topCharts: [],
-          mostTrending: [],
-          mostPopular: [],
-        })
-      ).unwrap();
+      await dispatch(createHomeScreen(data)).unwrap();
       setShowCreateModal(false);
+      dispatch(fetchHomeScreens({ page, limit }));
     } catch (error) {
       console.error('Failed to create home screen:', error);
     }
@@ -63,124 +67,63 @@ export const HomeScreenList = () => {
           Create New Screen
         </DetailButton>
       </Header>
-      {homeScreens && homeScreens.length > 0 ? (
-        <>
-          {homeScreens.map((screen: HomeScreen) => (
-            <HomeScreenCard key={screen._id} screen={screen} />
-          ))}
-          <PaginationContainer>
-            <PaginationInfo>
-              Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} home screens
-            </PaginationInfo>
-            
-            <PaginationControls>
-              <DetailButton 
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={pagination.page === 1}
+
+      <Content>
+        {homeScreens && homeScreens.length > 0 ? (
+          <>
+            {homeScreens.map((screen) => (
+              <HomeScreenCard key={screen._id} screen={screen} />
+            ))}
+            <PaginationContainer>
+              <PaginationInfo>
+                Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} items
+              </PaginationInfo>
+              <PaginationControls>
+                <DetailButton
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page === 1}
+                >
+                  Previous
+                </DetailButton>
+                <PageNumbers>
+                  {Array.from({ length: Math.ceil(total / limit) }, (_, i) => i + 1).map((pageNum) => (
+                    <PageNumber
+                      key={pageNum}
+                      active={pageNum === page}
+                      onClick={() => handlePageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </PageNumber>
+                  ))}
+                </PageNumbers>
+                <DetailButton
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={page * limit >= total}
+                >
+                  Next
+                </DetailButton>
+              </PaginationControls>
+              <ItemsPerPageSelect
+                value={limit}
+                onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
               >
-                Previous
-              </DetailButton>
-              
-              <PageNumber active={true}>
-                Page {pagination.page} of {pagination.totalPages}
-              </PageNumber>
-              
-              <DetailButton
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={pagination.page >= pagination.totalPages}
-              >
-                Next
-              </DetailButton>
-            </PaginationControls>
-            
-            <ItemsPerPageSelect
-              value={pagination.limit}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-            >
-              <option value={10}>10 per page</option>
-              <option value={20}>20 per page</option>
-              <option value={50}>50 per page</option>
-            </ItemsPerPageSelect>
-          </PaginationContainer>
-        </>
-      ) : (
-        <EmptyState>No home screens available</EmptyState>
-      )}
+                <option value={10}>10 per page</option>
+                <option value={20}>20 per page</option>
+                <option value={50}>50 per page</option>
+              </ItemsPerPageSelect>
+            </PaginationContainer>
+          </>
+        ) : (
+          <EmptyState>No home screens found</EmptyState>
+        )}
+      </Content>
 
       {showCreateModal && (
         <CreateModal
-          onCreate={handleCreate}
           onClose={() => setShowCreateModal(false)}
+          onCreate={() => handleCreateHomeScreen({})}
         />
       )}
     </Container>
   );
 };
-
-const Container = styled.div`
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-`;
-
-const Title = styled.h1`
-  color: #dbdbdb;
-  font-size: 2.5rem;
-  font-family: Denike;
-`;
-
-const EmptyState = styled.div`
-  color: #666;
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
-`;
-
-const PaginationContainer = styled.div`
-  margin-top: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const PaginationInfo = styled.div`
-  color: #666;
-  font-size: 0.9rem;
-`;
-
-const PaginationControls = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const PageNumber = styled.div<{ active: boolean }>`
-  color: ${props => props.active ? '#dbdbdb' : '#666'};
-  font-size: 1rem;
-`;
-
-const ItemsPerPageSelect = styled.select`
-  padding: 0.5rem;
-  border-radius: 4px;
-  background-color: #2a2a2a;
-  color: #dbdbdb;
-  border: 1px solid #444;
-  cursor: pointer;
-  
-  &:focus {
-    outline: none;
-    border-color: #666;
-  }
-  
-  option {
-    background-color: #2a2a2a;
-  }
-`;

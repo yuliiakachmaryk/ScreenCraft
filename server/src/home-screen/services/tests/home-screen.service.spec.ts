@@ -179,9 +179,40 @@ describe('HomeScreenService', () => {
   });
 
   describe('setActive', () => {
-    it('should set a configuration as active', async () => {
+    it('should set a configuration as active when no other screen is active', async () => {
       const activeConfig = { ...mockHomeScreenConfig, isActive: true };
       const mockPopulate = jest.fn().mockReturnThis();
+      jest.spyOn(model, 'findOne').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as any);
+      jest.spyOn(model, 'updateMany').mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
+      } as any);
+      jest.spyOn(model, 'findByIdAndUpdate').mockReturnValue({
+        populate: mockPopulate,
+        exec: jest.fn().mockResolvedValue(activeConfig),
+      } as any);
+
+      const result = await service.setActive('test-id');
+      expect(result.isActive).toBe(true);
+      expect(mockPopulate).toHaveBeenCalledTimes(4);
+    });
+
+    it('should throw error if another screen is already active', async () => {
+      const existingActiveScreen = { ...mockHomeScreenConfig, _id: 'existing-id', isActive: true };
+      jest.spyOn(model, 'findOne').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(existingActiveScreen),
+      } as any);
+
+      await expect(service.setActive('test-id')).rejects.toThrow('Another home screen is already active');
+    });
+
+    it('should allow reactivating the same screen', async () => {
+      const activeConfig = { ...mockHomeScreenConfig, _id: 'test-id', isActive: true };
+      const mockPopulate = jest.fn().mockReturnThis();
+      jest.spyOn(model, 'findOne').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(activeConfig),
+      } as any);
       jest.spyOn(model, 'updateMany').mockReturnValue({
         exec: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
       } as any);
@@ -197,6 +228,9 @@ describe('HomeScreenService', () => {
 
     it('should throw NotFoundException if configuration not found', async () => {
       const mockPopulate = jest.fn().mockReturnThis();
+      jest.spyOn(model, 'findOne').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as any);
       jest.spyOn(model, 'updateMany').mockReturnValue({
         exec: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
       } as any);

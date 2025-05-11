@@ -8,6 +8,7 @@ import {
   deleteHomeScreen,
   addContentToSection,
   removeContentFromSection,
+  setActive,
 } from '../../store/slices/homeScreenSlice';
 import { fetchContentItems, setPage, setItemsPerPage } from '../../store/slices/contentItemSlice';
 import { LoadingSpinner } from '../../components/LoadingSpinner/LoadingSpinner';
@@ -41,6 +42,9 @@ const getErrorMessage = (error: ErrorResponse): string => {
   if (error?.message) {
     return error.message;
   }
+  if (typeof error === 'string') {
+    return error;
+  }
   return 'An unexpected error occurred';
 };
 
@@ -56,7 +60,7 @@ export const HomeScreenDetail = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const {
-    currentItem: screen,
+    selectedItem: homeScreen,
     loading,
     error: homeScreenError,
   } = useAppSelector((state) => state.homeScreen);
@@ -87,28 +91,36 @@ export const HomeScreenDetail = () => {
 
   const handleToggleActive = async () => {
     try {
-      if (id) {
-        await dispatch(
-          updateHomeScreen({
-            id,
-            data: { isActive: !screen?.isActive },
-          })
-        ).unwrap();
-        setError(null);
+      if (homeScreen?.isActive) {
+        await dispatch(updateHomeScreen({ 
+          id: homeScreen._id, 
+          data: { isActive: false } 
+        })).unwrap();
+      } else {
+        await dispatch(setActive(homeScreen?._id || '')).unwrap();
       }
     } catch (err) {
-      setError(getErrorMessage(err as ErrorResponse));
+      const errorMessage = getErrorMessage(err as ErrorResponse);
+      if (errorMessage.includes('409')) {
+        setError('Another home screen is already active. Please deactivate it first before activating this one.');
+      } else if (errorMessage.toLowerCase().includes('not found')) {
+        setError('Home screen not found. It may have been deleted.');
+      } else {
+        setError(errorMessage);
+      }
     }
   };
 
   const handleDelete = async () => {
-    try {
-      if (id) {
-        await dispatch(deleteHomeScreen(id)).unwrap();
-        navigate('/');
+    if (window.confirm('Are you sure you want to delete this home screen?')) {
+      try {
+        if (id) {
+          await dispatch(deleteHomeScreen(id)).unwrap();
+          navigate('/');
+        }
+      } catch (err) {
+        setError(getErrorMessage(err as ErrorResponse));
       }
-    } catch (err) {
-      setError(getErrorMessage(err as ErrorResponse));
     }
   };
 
@@ -126,16 +138,10 @@ export const HomeScreenDetail = () => {
     dispatch(fetchContentItems({ page: 1, limit: newLimit }));
   };
 
-  const handleAddContent = async (sectionName: string) => {
-    try {
-      setSelectedSection(sectionName);
-      setModalPage(1);
-      await dispatch(fetchContentItems({ page: 1, limit: modalItemsPerPage })).unwrap();
-      setShowContentModal(true);
-      setError(null);
-    } catch (err) {
-      setError(getErrorMessage(err as ErrorResponse));
-    }
+  const handleAddContent = async (section: string) => {
+    setSelectedSection(section);
+    setShowContentModal(true);
+    dispatch(fetchContentItems({ page: 1, limit: modalItemsPerPage }));
   };
 
   const handleContentSelect = async (contentId: string) => {
@@ -144,11 +150,12 @@ export const HomeScreenDetail = () => {
         await dispatch(
           addContentToSection({
             id,
-            contentId,
+            contentItemId: contentId,
             section: selectedSection,
           })
         ).unwrap();
         setShowContentModal(false);
+        setSelectedSection('');
         setError(null);
       }
     } catch (err) {
@@ -156,21 +163,15 @@ export const HomeScreenDetail = () => {
     }
   };
 
-  const handleRemoveContent = async (
-    sectionName: string,
-    contentId: string
-  ) => {
+  const handleRemoveContent = async (section: string, contentItemId: string) => {
     try {
-      if (id) {
-        await dispatch(
-          removeContentFromSection({
-            id,
-            contentId,
-            section: sectionName,
-          })
-        ).unwrap();
-        setError(null);
-      }
+      await dispatch(
+        removeContentFromSection({
+          id: homeScreen?._id || '',
+          contentItemId,
+          section,
+        })
+      ).unwrap();
     } catch (err) {
       setError(getErrorMessage(err as ErrorResponse));
     }
@@ -180,7 +181,7 @@ export const HomeScreenDetail = () => {
     return <LoadingSpinner text="Loading home screen details..." />;
   }
 
-  if (!screen) {
+  if (!homeScreen) {
     return <DetailEmptyState>Home screen not found</DetailEmptyState>;
   }
 
@@ -190,12 +191,12 @@ export const HomeScreenDetail = () => {
       <DetailHeader>
         <DetailTitle>Home Screen Details</DetailTitle>
         <DetailActions>
-          <DetailStatus isActive={screen.isActive}>
-            {screen.isActive ? 'Active' : 'Inactive'}
+          <DetailStatus isActive={homeScreen.isActive}>
+            {homeScreen.isActive ? 'Active' : 'Inactive'}
           </DetailStatus>
           {isEditing && (
             <DetailButton onClick={handleToggleActive}>
-              {screen.isActive ? 'Deactivate' : 'Activate'}
+              {homeScreen.isActive ? 'Deactivate' : 'Activate'}
             </DetailButton>
           )}
           <DetailButton onClick={() => setIsEditing(!isEditing)}>
@@ -209,38 +210,42 @@ export const HomeScreenDetail = () => {
       <DetailSections>
         <ContentSection
           title="Recommendations"
-          items={screen.recomendaciones}
+          items={homeScreen.recomendaciones}
           onAddContent={() => handleAddContent(SECTIONS.RECOMMENDATIONS)}
           onRemoveContent={(contentId) =>
             handleRemoveContent(SECTIONS.RECOMMENDATIONS, contentId)
           }
+          size={100}
           isEditing={isEditing}
         />
         <ContentSection
           title="Top Charts"
-          items={screen.topCharts}
+          items={homeScreen.topCharts}
           onAddContent={() => handleAddContent(SECTIONS.TOP_CHARTS)}
           onRemoveContent={(contentId) =>
             handleRemoveContent(SECTIONS.TOP_CHARTS, contentId)
           }
+          size={100}
           isEditing={isEditing}
         />
         <ContentSection
           title="Most Trending"
-          items={screen.mostTrending}
+          items={homeScreen.mostTrending}
           onAddContent={() => handleAddContent(SECTIONS.MOST_TRENDING)}
           onRemoveContent={(contentId) =>
             handleRemoveContent(SECTIONS.MOST_TRENDING, contentId)
           }
+          size={100}
           isEditing={isEditing}
         />
         <ContentSection
           title="Most Popular"
-          items={screen.mostPopular}
+          items={homeScreen.mostPopular}
           onAddContent={() => handleAddContent(SECTIONS.MOST_POPULAR)}
           onRemoveContent={(contentId) =>
             handleRemoveContent(SECTIONS.MOST_POPULAR, contentId)
           }
+          size={100}
           isEditing={isEditing}
         />
       </DetailSections>

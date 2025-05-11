@@ -11,6 +11,8 @@ export interface HomeScreen {
   updatedAt: string;
 }
 
+export type HomeScreenConfig = HomeScreen;
+
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;

@@ -90,18 +90,33 @@ export class HomeScreenService {
   }
 
   async setActive(id: string): Promise<HomeScreenConfig> {
-    await this.homeScreenModel.updateMany({}, { isActive: false }).exec();
-    const config = await this.homeScreenModel
-      .findByIdAndUpdate(id, { isActive: true, updatedAt: new Date() }, { new: true })
-      .populate('recomendaciones')
-      .populate('topCharts')
-      .populate('mostTrending')
-      .populate('mostPopular')
-      .exec();
-    if (!config) {
-      throw new NotFoundException(`Home screen configuration with ID ${id} not found`);
+    try {
+      const activeScreen = await this.homeScreenModel.findOne({ isActive: true }).exec();
+      if (activeScreen && (activeScreen as any)._id.toString() !== id) {
+        throw new Error('Another home screen is already active. Please deactivate it first.');
+      }
+
+      await this.homeScreenModel.updateMany({}, { isActive: false }).exec();
+      const config = await this.homeScreenModel
+        .findByIdAndUpdate(id, { isActive: true, updatedAt: new Date() }, { new: true })
+        .populate('recomendaciones')
+        .populate('topCharts')
+        .populate('mostTrending')
+        .populate('mostPopular')
+        .exec();
+      if (!config) {
+        throw new NotFoundException(`Home screen configuration with ID ${id} not found`);
+      }
+      return config;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error.message.includes('already active')) {
+        throw new Error(error.message);
+      }
+      throw new Error('Failed to set home screen as active');
     }
-    return config;
   }
 
   async remove(id: string): Promise<HomeScreenConfig> {

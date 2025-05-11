@@ -8,21 +8,6 @@ interface ErrorResponse {
   message: string;
   error: string;
 }
-interface CreateHomeScreenRequest {
-  isActive: boolean;
-  recomendaciones: string[];
-  topCharts: string[];
-  mostTrending: string[];
-  mostPopular: string[];
-}
-
-interface UpdateHomeScreenRequest {
-  isActive?: boolean;
-  recomendaciones?: string[];
-  topCharts?: string[];
-  mostTrending?: string[];
-  mostPopular?: string[];
-}
 
 interface CreateContentItemRequest {
   name: string;
@@ -82,14 +67,11 @@ export const homeScreenApi = {
     }),
   getActive: () => api.get<HomeScreen>('/home-screen/active'),
   getById: (id: string) => api.get<HomeScreen>(`/home-screen/${id}`),
-  create: (data: CreateHomeScreenRequest) =>
-    api.post<HomeScreen>('/home-screen', data),
-  update: (id: string, data: UpdateHomeScreenRequest) =>
+  create: (data: Partial<HomeScreen>) => api.post<HomeScreen>('/home-screen', data),
+  update: (id: string, data: Partial<HomeScreen>) =>
     api.patch<HomeScreen>(`/home-screen/${id}`, data),
-  setActive: (id: string) =>
-    api.put<HomeScreen>(`/home-screen/${id}/activate`),
-  delete: (id: string) =>
-    api.delete<HomeScreen>(`/home-screen/${id}`),
+  delete: (id: string) => api.delete<HomeScreen>(`/home-screen/${id}`),
+  setActive: (id: string) => api.put<HomeScreen>(`/home-screen/${id}/activate`),
   addContentToSection: (id: string, contentItemId: string, section: string) =>
     api.post<HomeScreen>(`/home-screen/${id}/content-items/${contentItemId}`, { section }),
   removeContentFromSection: (id: string, contentItemId: string, section: string) =>
