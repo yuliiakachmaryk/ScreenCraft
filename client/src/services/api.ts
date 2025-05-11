@@ -109,7 +109,8 @@ export const contentItemApi = {
 };
 
 export const episodeApi = {
-  getAll: () => api.get<Episode[]>('/episodes'),
+  getAll: (page = 1, limit = 10) => 
+    api.get<{ episodes: Episode[]; total: number }>(`/episodes?page=${page}&limit=${limit}`),
   getById: (id: string) => api.get<Episode>(`/episodes/${id}`),
   create: (data: CreateEpisodeRequest) =>
     api.post<Episode>('/episodes', data),

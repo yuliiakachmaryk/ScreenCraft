@@ -57,10 +57,10 @@ export const ContentItemDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = () => {
+  const fetchData = async () => {
     if (id) {
       dispatch(fetchContentItemById(id));
-      dispatch(fetchEpisodes());
+      dispatch(fetchEpisodes({ page: 1, limit: 50 }));
     }
   };
 

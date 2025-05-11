@@ -97,7 +97,7 @@ export const ContentItemForm = ({
       });
       setPreviewImage(initialData.introImage);
     }
-    dispatch(fetchEpisodes());
+    dispatch(fetchEpisodes({ page: 1, limit: 50 }));
   }, [initialData, dispatch]);
 
   const handleChange = (

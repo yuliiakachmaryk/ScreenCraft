@@ -6,6 +6,9 @@ export class Episode extends Document {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ required: true })
+  videoLink: string;
+
   @Prop({ required: true, default: false })
   isExclusive: boolean;
 

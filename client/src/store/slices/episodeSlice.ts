@@ -7,6 +7,9 @@ interface EpisodeState {
   currentItem: Episode | null;
   loading: boolean;
   error: string | null;
+  total: number;
+  currentPage: number;
+  itemsPerPage: number;
 }
 
 const initialState: EpisodeState = {
@@ -14,12 +17,15 @@ const initialState: EpisodeState = {
   currentItem: null,
   loading: false,
   error: null,
+  total: 0,
+  currentPage: 1,
+  itemsPerPage: 10,
 };
 
 export const fetchEpisodes = createAsyncThunk(
   'episode/fetchAll',
-  async () => {
-    const response = await episodeApi.getAll();
+  async ({ page = 1, limit = 10 }: { page?: number; limit?: number }) => {
+    const response = await episodeApi.getAll(page, limit);
     return response.data;
   }
 );
@@ -63,6 +69,12 @@ const episodeSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setPage: (state, action) => {
+      state.currentPage = action.payload;
+    },
+    setItemsPerPage: (state, action) => {
+      state.itemsPerPage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -72,7 +84,8 @@ const episodeSlice = createSlice({
       })
       .addCase(fetchEpisodes.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload.episodes;
+        state.total = action.payload.total;
       })
       .addCase(fetchEpisodes.rejected, (state, action) => {
         state.loading = false;
@@ -138,5 +151,5 @@ const episodeSlice = createSlice({
   },
 });
 
-export const { clearError } = episodeSlice.actions;
+export const { clearError, setPage, setItemsPerPage } = episodeSlice.actions;
 export default episodeSlice.reducer; 

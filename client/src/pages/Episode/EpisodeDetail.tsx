@@ -18,6 +18,7 @@ export const EpisodeDetail = () => {
     isExclusive: false,
     likesNumber: 0,
     reviewed: false,
+    videoLink: '',
   });
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export const EpisodeDetail = () => {
         isExclusive: episode.isExclusive,
         likesNumber: episode.likesNumber,
         reviewed: episode.reviewed,
+        videoLink: episode.videoLink,
       });
     }
   }, [episode]);
@@ -97,6 +99,19 @@ export const EpisodeDetail = () => {
             value={formData.name}
             onChange={handleChange}
             required
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="videoLink">Video Link</Label>
+          <Input
+            type="url"
+            id="videoLink"
+            name="videoLink"
+            value={formData.videoLink}
+            onChange={handleChange}
+            required
+            placeholder="https://example.com/video.mp4"
           />
         </FormGroup>
 

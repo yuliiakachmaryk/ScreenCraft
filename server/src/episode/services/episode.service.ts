@@ -14,8 +14,23 @@ export class EpisodeService {
     return this.episodeModel.create(createEpisodeDto);
   }
 
-  async findAll(): Promise<Episode[]> {
-    return this.episodeModel.find().exec();
+  async findAll(page: number = 1, limit: number = 10): Promise<{ episodes: Episode[]; total: number }> {
+    const skip = (page - 1) * limit;
+    
+    const [episodes, total] = await Promise.all([
+      this.episodeModel
+        .find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.episodeModel.countDocuments().exec()
+    ]);
+
+    return {
+      episodes,
+      total
+    };
   }
 
   async findOne(id: string): Promise<Episode> {

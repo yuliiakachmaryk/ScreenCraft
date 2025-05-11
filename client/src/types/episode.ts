@@ -4,6 +4,7 @@ export interface Episode {
   isExclusive: boolean;
   likesNumber: number;
   reviewed: boolean;
+  videoLink: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -13,6 +14,7 @@ export interface CreateEpisodeRequest {
   isExclusive: boolean;
   likesNumber: number;
   reviewed: boolean;
+  videoLink: string;
 }
 
 export interface UpdateEpisodeRequest {
@@ -20,4 +22,5 @@ export interface UpdateEpisodeRequest {
   isExclusive?: boolean;
   likesNumber?: number;
   reviewed?: boolean;
+  videoLink?: string;
 }
