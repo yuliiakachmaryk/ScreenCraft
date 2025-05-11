@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { HomeScreenService } from '../home-screen.service';
+import { HomeScreenService, PaginatedResponse } from '../home-screen.service';
 import { HomeScreenConfig } from '../../schemas/home-screen.schema';
 import { NotFoundException } from '@nestjs/common';
 
@@ -18,15 +18,23 @@ describe('HomeScreenService', () => {
     save: jest.fn(),
   };
 
+  const mockQuery = {
+    sort: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    populate: jest.fn().mockReturnThis(),
+    exec: jest.fn(),
+  };
+
   const mockModel = {
     create: jest.fn().mockResolvedValue(mockHomeScreenConfig),
-    find: jest.fn(),
-    findOne: jest.fn(),
-    findById: jest.fn(),
-    findByIdAndUpdate: jest.fn(),
-    findByIdAndDelete: jest.fn(),
-    updateMany: jest.fn(),
-    exec: jest.fn(),
+    find: jest.fn().mockReturnValue(mockQuery),
+    findOne: jest.fn().mockReturnValue(mockQuery),
+    findById: jest.fn().mockReturnValue(mockQuery),
+    findByIdAndUpdate: jest.fn().mockReturnValue(mockQuery),
+    findByIdAndDelete: jest.fn().mockReturnValue(mockQuery),
+    updateMany: jest.fn().mockReturnValue(mockQuery),
+    countDocuments: jest.fn().mockReturnValue(mockQuery),
   };
 
   beforeEach(async () => {
@@ -66,17 +74,30 @@ describe('HomeScreenService', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of home screen configurations', async () => {
+    it('should return a paginated array of home screen configurations', async () => {
       const configs = [mockHomeScreenConfig];
-      const mockPopulate = jest.fn().mockReturnThis();
-      jest.spyOn(model, 'find').mockReturnValue({
-        populate: mockPopulate,
-        exec: jest.fn().mockResolvedValue(configs),
-      } as any);
+      const total = 1;
+      const page = 1;
+      const limit = 10;
 
-      const result = await service.findAll();
-      expect(result).toEqual(configs);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      mockQuery.exec.mockResolvedValueOnce(configs);
+      mockQuery.exec.mockResolvedValueOnce(total);
+
+      const result = await service.findAll(page, limit);
+      
+      expect(result).toEqual({
+        items: configs,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      });
+      
+      expect(model.find).toHaveBeenCalled();
+      expect(mockQuery.sort).toHaveBeenCalledWith({ isActive: -1, updatedAt: -1 });
+      expect(mockQuery.skip).toHaveBeenCalledWith((page - 1) * limit);
+      expect(mockQuery.limit).toHaveBeenCalledWith(limit);
+      expect(mockQuery.populate).toHaveBeenCalledTimes(4);
     });
   });
 
