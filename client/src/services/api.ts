@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { ContentItem, Episode, HomeScreen } from '../types';
+import { ContentItem, Episode, HomeScreen, PaginatedResponse } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
@@ -76,7 +76,10 @@ api.interceptors.response.use(
 );
 
 export const homeScreenApi = {
-  getAll: () => api.get<HomeScreen[]>('/home-screen'),
+  getAll: (page = 1, limit = 10) => 
+    api.get<PaginatedResponse<HomeScreen>>('/home-screen', {
+      params: { page, limit }
+    }),
   getActive: () => api.get<HomeScreen>('/home-screen/active'),
   getById: (id: string) => api.get<HomeScreen>(`/home-screen/${id}`),
   create: (data: CreateHomeScreenRequest) =>

@@ -7,6 +7,12 @@ interface HomeScreenState {
   currentItem: HomeScreen | null;
   loading: boolean;
   error: string | null;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 const initialState: HomeScreenState = {
@@ -14,12 +20,18 @@ const initialState: HomeScreenState = {
   currentItem: null,
   loading: false,
   error: null,
+  pagination: {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  },
 };
 
 export const fetchHomeScreens = createAsyncThunk(
   'homeScreen/fetchAll',
-  async () => {
-    const response = await homeScreenApi.getAll();
+  async ({ page = 1, limit = 10 }: { page?: number; limit?: number }) => {
+    const response = await homeScreenApi.getAll(page, limit);
     return response.data;
   }
 );
@@ -79,6 +91,12 @@ const homeScreenSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setPage: (state, action) => {
+      state.pagination.page = action.payload;
+    },
+    setLimit: (state, action) => {
+      state.pagination.limit = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -88,7 +106,13 @@ const homeScreenSlice = createSlice({
       })
       .addCase(fetchHomeScreens.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload.items;
+        state.pagination = {
+          page: action.payload.page,
+          limit: action.payload.limit,
+          total: action.payload.total,
+          totalPages: action.payload.totalPages,
+        };
       })
       .addCase(fetchHomeScreens.rejected, (state, action) => {
         state.loading = false;
@@ -190,5 +214,5 @@ const homeScreenSlice = createSlice({
   },
 });
 
-export const { clearError } = homeScreenSlice.actions;
+export const { clearError, setPage, setLimit } = homeScreenSlice.actions;
 export default homeScreenSlice.reducer; 

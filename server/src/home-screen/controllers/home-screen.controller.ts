@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
-import { HomeScreenService } from '../services/home-screen.service';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import { HomeScreenService, PaginatedResponse } from '../services/home-screen.service';
 import { HomeScreenConfig } from '../schemas/home-screen.schema';
 
 @Controller('home-screen')
@@ -12,8 +12,8 @@ export class HomeScreenController {
   }
 
   @Get()
-  findAll() {
-    return this.homeScreenService.findAll();
+  findAll(@Query('page') page?: number, @Query('limit') limit?: number): Promise<PaginatedResponse<HomeScreenConfig>> {
+    return this.homeScreenService.findAll(page, limit);
   }
 
   @Get('active')

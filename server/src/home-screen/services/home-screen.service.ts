@@ -3,6 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { HomeScreenConfig } from '../schemas/home-screen.schema';
 
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 @Injectable()
 export class HomeScreenService {
   constructor(
@@ -14,14 +22,29 @@ export class HomeScreenService {
     return this.homeScreenModel.create(createHomeScreenDto);
   }
 
-  async findAll(): Promise<HomeScreenConfig[]> {
-    return this.homeScreenModel
-      .find()
-      .populate('recomendaciones')
-      .populate('topCharts')
-      .populate('mostTrending')
-      .populate('mostPopular')
-      .exec();
+  async findAll(page = 1, limit = 10): Promise<PaginatedResponse<HomeScreenConfig>> {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.homeScreenModel
+        .find()
+        .sort({ isActive: -1, updatedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('recomendaciones')
+        .populate('topCharts')
+        .populate('mostTrending')
+        .populate('mostPopular')
+        .exec(),
+      this.homeScreenModel.countDocuments().exec(),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<HomeScreenConfig> {
