@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { ContentItem } from '../../content-item/schemas/content-item.schema';
 
 @Schema()
 export class HomeScreenConfig extends Document {

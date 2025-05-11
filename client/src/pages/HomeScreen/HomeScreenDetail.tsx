@@ -25,6 +25,7 @@ import {
   DetailSections,
   DetailEmptyState,
 } from '../../components/HomeScreen/styles';
+import { MobilePreviewModal } from '../../components/HomeScreen/MobilePreviewModal';
 
 interface ErrorResponse {
   response?: {
@@ -76,6 +77,7 @@ export const HomeScreenDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [modalPage, setModalPage] = useState(1);
   const [modalItemsPerPage, setModalItemsPerPage] = useState(10);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -199,6 +201,9 @@ export const HomeScreenDetail = () => {
               {homeScreen.isActive ? 'Deactivate' : 'Activate'}
             </DetailButton>
           )}
+          <DetailButton onClick={() => setShowPreviewModal(true)}>
+            Mobile Preview
+          </DetailButton>
           <DetailButton onClick={() => setIsEditing(!isEditing)}>
             {isEditing ? 'Cancel' : 'Edit'}
           </DetailButton>
@@ -261,6 +266,13 @@ export const HomeScreenDetail = () => {
           total={total}
           onPageChange={handleModalPageChange}
           onItemsPerPageChange={handleModalItemsPerPageChange}
+        />
+      )}
+
+      {showPreviewModal && (
+        <MobilePreviewModal
+          homeScreen={homeScreen}
+          onClose={() => setShowPreviewModal(false)}
         />
       )}
     </DetailContainer>
