@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { EpisodeService } from '../services/episode.service';
 import { Episode } from '../schemas/episode.schema';
 
@@ -12,8 +12,8 @@ export class EpisodeController {
   }
 
   @Get()
-  findAll() {
-    return this.episodeService.findAll();
+  findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
+    return this.episodeService.findAll(page, limit);
   }
 
   @Get(':id')

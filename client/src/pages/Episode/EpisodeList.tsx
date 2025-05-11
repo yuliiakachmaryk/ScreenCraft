@@ -32,7 +32,7 @@ export const EpisodeList = () => {
 
   const handleItemsPerPageChange = (newLimit: number) => {
     dispatch(setItemsPerPage(newLimit));
-    dispatch(setPage(1)); 
+    dispatch(setPage(1));
   };
 
   const handleCreateEpisode = async (data: {
@@ -229,6 +229,8 @@ const PaginationContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 2rem;
 `;
 
 const PaginationInfo = styled.div`
