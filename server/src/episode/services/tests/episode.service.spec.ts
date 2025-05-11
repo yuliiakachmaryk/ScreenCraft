@@ -14,16 +14,21 @@ describe('EpisodeService', () => {
     isExclusive: false,
     likesNumber: 0,
     reviewed: false,
+    videoLink: 'https://example.com/video.mp4',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 
   const mockModel = {
     create: jest.fn(),
-    find: jest.fn(),
-    findById: jest.fn(),
-    findByIdAndUpdate: jest.fn(),
-    findByIdAndDelete: jest.fn(),
+    find: jest.fn().mockReturnThis(),
+    findById: jest.fn().mockReturnThis(),
+    findByIdAndUpdate: jest.fn().mockReturnThis(),
+    findByIdAndDelete: jest.fn().mockReturnThis(),
+    sort: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    countDocuments: jest.fn().mockReturnThis(),
     exec: jest.fn(),
   };
 
@@ -53,6 +58,7 @@ describe('EpisodeService', () => {
         isExclusive: false,
         likesNumber: 0,
         reviewed: false,
+        videoLink: 'https://example.com/video.mp4',
       };
 
       jest.spyOn(model, 'create').mockResolvedValue(mockEpisode as any);
@@ -63,31 +69,36 @@ describe('EpisodeService', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of episodes', async () => {
+    it('should return an array of episodes with pagination', async () => {
       const episodes = [mockEpisode];
-      jest.spyOn(model, 'find').mockReturnValue({
-        exec: jest.fn().mockResolvedValue(episodes),
-      } as any);
+      const page = 1;
+      const limit = 10;
+      
+      mockModel.exec.mockResolvedValueOnce(episodes);
+      mockModel.countDocuments = jest.fn().mockReturnThis();
+      mockModel.exec.mockResolvedValueOnce(1); // Mock total count
 
-      const result = await service.findAll();
-      expect(result).toEqual(episodes);
+      const result = await service.findAll(page, limit);
+      
+      expect(result).toEqual({ episodes, total: 1 });
+      expect(mockModel.find).toHaveBeenCalled();
+      expect(mockModel.sort).toHaveBeenCalledWith({ createdAt: -1 });
+      expect(mockModel.skip).toHaveBeenCalledWith(0);
+      expect(mockModel.limit).toHaveBeenCalledWith(10);
     });
   });
 
   describe('findOne', () => {
     it('should return a single episode', async () => {
-      jest.spyOn(model, 'findById').mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockEpisode),
-      } as any);
+      mockModel.exec.mockResolvedValueOnce(mockEpisode);
 
       const result = await service.findOne('test-id');
       expect(result).toEqual(mockEpisode);
+      expect(mockModel.findById).toHaveBeenCalledWith('test-id');
     });
 
     it('should throw NotFoundException if episode not found', async () => {
-      jest.spyOn(model, 'findById').mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null),
-      } as any);
+      mockModel.exec.mockResolvedValueOnce(null);
 
       await expect(service.findOne('test-id')).rejects.toThrow(NotFoundException);
     });
@@ -96,18 +107,15 @@ describe('EpisodeService', () => {
   describe('update', () => {
     it('should update an episode', async () => {
       const updateEpisodeDto = { name: 'Updated Episode' };
-      jest.spyOn(model, 'findByIdAndUpdate').mockReturnValue({
-        exec: jest.fn().mockResolvedValue({ ...mockEpisode, ...updateEpisodeDto }),
-      } as any);
+      mockModel.exec.mockResolvedValueOnce({ ...mockEpisode, ...updateEpisodeDto });
 
       const result = await service.update('test-id', updateEpisodeDto);
       expect(result.name).toBe('Updated Episode');
+      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith('test-id', updateEpisodeDto, { new: true });
     });
 
     it('should throw NotFoundException if episode not found', async () => {
-      jest.spyOn(model, 'findByIdAndUpdate').mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null),
-      } as any);
+      mockModel.exec.mockResolvedValueOnce(null);
 
       await expect(service.update('test-id', {})).rejects.toThrow(NotFoundException);
     });
@@ -115,18 +123,15 @@ describe('EpisodeService', () => {
 
   describe('remove', () => {
     it('should remove an episode', async () => {
-      jest.spyOn(model, 'findByIdAndDelete').mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockEpisode),
-      } as any);
+      mockModel.exec.mockResolvedValueOnce(mockEpisode);
 
       const result = await service.remove('test-id');
       expect(result).toEqual(mockEpisode);
+      expect(mockModel.findByIdAndDelete).toHaveBeenCalledWith('test-id');
     });
 
     it('should throw NotFoundException if episode not found', async () => {
-      jest.spyOn(model, 'findByIdAndDelete').mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null),
-      } as any);
+      mockModel.exec.mockResolvedValueOnce(null);
 
       await expect(service.remove('test-id')).rejects.toThrow(NotFoundException);
     });
