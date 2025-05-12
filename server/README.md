@@ -1,31 +1,4 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+# Project setup
 
 ```bash
 $ npm install
@@ -57,42 +30,654 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Deployment
+# ScreenCraft API Documentation
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+This document provides information about the available API endpoints, their request/response formats, and example usage.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Base URL
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```
+http://localhost:4000
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Endpoints
 
-## Resources
+### Home Screen Configuration
 
-Check out a few resources that may come in handy when working with NestJS:
+#### Get All Configurations
+```http
+GET /home-screen
+```
+Response:
+```json
+[
+  {
+    "_id": "60d21b4667d0d8992e610c85",
+    "isActive": true,
+    "recomendaciones": [
+      {
+        "_id": "60d21b4667d0d8992e610c86",
+        "name": "Breaking Bad",
+        "introImage": "breaking-bad.jpg",
+        "isExclusive": true,
+        "category": "Drama",
+        "episodes": []
+      }
+    ],
+    "topCharts": [],
+    "mostTrending": [],
+    "mostPopular": [],
+    "createdAt": "2024-03-20T10:00:00.000Z",
+    "updatedAt": "2024-03-20T10:00:00.000Z"
+  }
+]
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+#### Get Active Configuration
+```http
+GET /home-screen/active
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c85",
+  "isActive": true,
+  "recomendaciones": [
+    {
+      "_id": "60d21b4667d0d8992e610c86",
+      "name": "Breaking Bad",
+      "introImage": "breaking-bad.jpg",
+      "isExclusive": true,
+      "category": "Drama",
+      "episodes": []
+    }
+  ],
+  "topCharts": [],
+  "mostTrending": [],
+  "mostPopular": [],
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:00:00.000Z"
+}
+```
 
-## Support
+#### Get Configuration by ID
+```http
+GET /home-screen/:id
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c85",
+  "isActive": true,
+  "recomendaciones": [
+    {
+      "_id": "60d21b4667d0d8992e610c86",
+      "name": "Breaking Bad",
+      "introImage": "breaking-bad.jpg",
+      "isExclusive": true,
+      "category": "Drama",
+      "episodes": []
+    }
+  ],
+  "topCharts": [],
+  "mostTrending": [],
+  "mostPopular": [],
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:00:00.000Z"
+}
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+#### Create Configuration
+```http
+POST /home-screen
+```
+Request Body:
+```json
+{
+  "isActive": true,
+  "recomendaciones": ["60d21b4667d0d8992e610c86"],
+  "topCharts": ["60d21b4667d0d8992e610c87"],
+  "mostTrending": ["60d21b4667d0d8992e610c88"],
+  "mostPopular": ["60d21b4667d0d8992e610c89"]
+}
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c85",
+  "isActive": true,
+  "recomendaciones": [
+    {
+      "_id": "60d21b4667d0d8992e610c86",
+      "name": "Breaking Bad",
+      "introImage": "breaking-bad.jpg",
+      "isExclusive": true,
+      "category": "Drama",
+      "episodes": []
+    }
+  ],
+  "topCharts": [
+    {
+      "_id": "60d21b4667d0d8992e610c87",
+      "name": "Game of Thrones",
+      "introImage": "got.jpg",
+      "isExclusive": true,
+      "category": "Fantasy",
+      "episodes": []
+    }
+  ],
+  "mostTrending": [
+    {
+      "_id": "60d21b4667d0d8992e610c88",
+      "name": "Stranger Things",
+      "introImage": "stranger-things.jpg",
+      "isExclusive": false,
+      "category": "Sci-Fi",
+      "episodes": []
+    }
+  ],
+  "mostPopular": [
+    {
+      "_id": "60d21b4667d0d8992e610c89",
+      "name": "The Office",
+      "introImage": "the-office.jpg",
+      "isExclusive": false,
+      "category": "Comedy",
+      "episodes": []
+    }
+  ],
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:00:00.000Z"
+}
+```
 
-## Stay in touch
+#### Update Configuration
+```http
+PATCH /home-screen/:id
+```
+Request Body:
+```json
+{
+  "isActive": false,
+  "recomendaciones": ["60d21b4667d0d8992e610c86", "60d21b4667d0d8992e610c87"],
+  "topCharts": ["60d21b4667d0d8992e610c88"],
+  "mostTrending": ["60d21b4667d0d8992e610c89"],
+  "mostPopular": []
+}
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c85",
+  "isActive": false,
+  "recomendaciones": [
+    {
+      "_id": "60d21b4667d0d8992e610c86",
+      "name": "Breaking Bad",
+      "introImage": "breaking-bad.jpg",
+      "isExclusive": true,
+      "category": "Drama",
+      "episodes": []
+    },
+    {
+      "_id": "60d21b4667d0d8992e610c87",
+      "name": "Game of Thrones",
+      "introImage": "got.jpg",
+      "isExclusive": true,
+      "category": "Fantasy",
+      "episodes": []
+    }
+  ],
+  "topCharts": [
+    {
+      "_id": "60d21b4667d0d8992e610c88",
+      "name": "Stranger Things",
+      "introImage": "stranger-things.jpg",
+      "isExclusive": false,
+      "category": "Sci-Fi",
+      "episodes": []
+    }
+  ],
+  "mostTrending": [
+    {
+      "_id": "60d21b4667d0d8992e610c89",
+      "name": "The Office",
+      "introImage": "the-office.jpg",
+      "isExclusive": false,
+      "category": "Comedy",
+      "episodes": []
+    }
+  ],
+  "mostPopular": [],
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:30:00.000Z"
+}
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+#### Set Configuration as Active
+```http
+PATCH /home-screen/:id/active
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c85",
+  "isActive": true,
+  "recomendaciones": [
+    {
+      "_id": "60d21b4667d0d8992e610c86",
+      "name": "Breaking Bad",
+      "introImage": "breaking-bad.jpg",
+      "isExclusive": true,
+      "category": "Drama",
+      "episodes": []
+    }
+  ],
+  "topCharts": [],
+  "mostTrending": [],
+  "mostPopular": [],
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T11:00:00.000Z"
+}
+```
 
-## License
+#### Delete Configuration
+```http
+DELETE /home-screen/:id
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c85",
+  "isActive": true,
+  "recomendaciones": [],
+  "topCharts": [],
+  "mostTrending": [],
+  "mostPopular": [],
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:00:00.000Z"
+}
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+#### Add Content Item to Section
+```http
+POST /home-screen/:id/section/:sectionName/content/:contentItemId
+```
+Example:
+```http
+POST /home-screen/60d21b4667d0d8992e610c85/section/recomendaciones/content/60d21b4667d0d8992e610c86
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c85",
+  "isActive": true,
+  "recomendaciones": [
+    {
+      "_id": "60d21b4667d0d8992e610c86",
+      "name": "Breaking Bad",
+      "introImage": "breaking-bad.jpg",
+      "isExclusive": true,
+      "category": "Drama",
+      "episodes": []
+    }
+  ],
+  "topCharts": [],
+  "mostTrending": [],
+  "mostPopular": [],
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T11:30:00.000Z"
+}
+```
+
+#### Remove Content Item from Section
+```http
+DELETE /home-screen/:id/section/:sectionName/content/:contentItemId
+```
+Example:
+```http
+DELETE /home-screen/60d21b4667d0d8992e610c85/section/recomendaciones/content/60d21b4667d0d8992e610c86
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c85",
+  "isActive": true,
+  "recomendaciones": [],
+  "topCharts": [],
+  "mostTrending": [],
+  "mostPopular": [],
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T12:00:00.000Z"
+}
+```
+
+### Content Items
+
+#### Get All Content Items
+```http
+GET /content-items
+```
+Response:
+```json
+[
+  {
+    "_id": "60d21b4667d0d8992e610c86",
+    "name": "Breaking Bad",
+    "introImage": "breaking-bad.jpg",
+    "isExclusive": true,
+    "category": "Drama",
+    "episodes": [
+      {
+        "_id": "60d21b4667d0d8992e610c90",
+        "name": "Pilot",
+        "isExclusive": true,
+        "likesNumber": 1000,
+        "reviewed": true,
+        "createdAt": "2024-03-20T10:00:00.000Z",
+        "updatedAt": "2024-03-20T10:00:00.000Z"
+      }
+    ]
+  }
+]
+```
+
+#### Get Content Item by ID
+```http
+GET /content-items/:id
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c86",
+  "name": "Breaking Bad",
+  "introImage": "breaking-bad.jpg",
+  "isExclusive": true,
+  "category": "Drama",
+  "episodes": [
+    {
+      "_id": "60d21b4667d0d8992e610c90",
+      "name": "Pilot",
+      "isExclusive": true,
+      "likesNumber": 1000,
+      "reviewed": true,
+      "createdAt": "2024-03-20T10:00:00.000Z",
+      "updatedAt": "2024-03-20T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+#### Create Content Item
+```http
+POST /content-items
+```
+Request Body:
+```json
+{
+  "name": "Breaking Bad",
+  "introImage": "breaking-bad.jpg",
+  "isExclusive": true,
+  "category": "Drama"
+}
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c86",
+  "name": "Breaking Bad",
+  "introImage": "breaking-bad.jpg",
+  "isExclusive": true,
+  "category": "Drama",
+  "episodes": []
+}
+```
+
+#### Update Content Item
+```http
+PATCH /content-items/:id
+```
+Request Body:
+```json
+{
+  "name": "Breaking Bad Season 1",
+  "introImage": "breaking-bad-s1.jpg",
+  "isExclusive": true,
+  "category": "Drama"
+}
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c86",
+  "name": "Breaking Bad Season 1",
+  "introImage": "breaking-bad-s1.jpg",
+  "isExclusive": true,
+  "category": "Drama",
+  "episodes": [
+    {
+      "_id": "60d21b4667d0d8992e610c90",
+      "name": "Pilot",
+      "isExclusive": true,
+      "likesNumber": 1000,
+      "reviewed": true,
+      "createdAt": "2024-03-20T10:00:00.000Z",
+      "updatedAt": "2024-03-20T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+#### Delete Content Item
+```http
+DELETE /content-items/:id
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c86",
+  "name": "Breaking Bad",
+  "introImage": "breaking-bad.jpg",
+  "isExclusive": true,
+  "category": "Drama",
+  "episodes": []
+}
+```
+
+#### Add Episode to Content Item
+```http
+POST /content-items/:id/episodes/:episodeId
+```
+Example:
+```http
+POST /content-items/60d21b4667d0d8992e610c86/episodes/60d21b4667d0d8992e610c90
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c86",
+  "name": "Breaking Bad",
+  "introImage": "breaking-bad.jpg",
+  "isExclusive": true,
+  "category": "Drama",
+  "episodes": [
+    {
+      "_id": "60d21b4667d0d8992e610c90",
+      "name": "Pilot",
+      "isExclusive": true,
+      "likesNumber": 1000,
+      "reviewed": true,
+      "createdAt": "2024-03-20T10:00:00.000Z",
+      "updatedAt": "2024-03-20T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+#### Remove Episode from Content Item
+```http
+DELETE /content-items/:id/episodes/:episodeId
+```
+Example:
+```http
+DELETE /content-items/60d21b4667d0d8992e610c86/episodes/60d21b4667d0d8992e610c90
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c86",
+  "name": "Breaking Bad",
+  "introImage": "breaking-bad.jpg",
+  "isExclusive": true,
+  "category": "Drama",
+  "episodes": []
+}
+```
+
+### Episodes
+
+#### Get All Episodes
+```http
+GET /episodes
+```
+Response:
+```json
+[
+  {
+    "_id": "60d21b4667d0d8992e610c90",
+    "name": "Pilot",
+    "isExclusive": true,
+    "likesNumber": 1000,
+    "reviewed": true,
+    "createdAt": "2024-03-20T10:00:00.000Z",
+    "updatedAt": "2024-03-20T10:00:00.000Z"
+  }
+]
+```
+
+#### Get Episode by ID
+```http
+GET /episodes/:id
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c90",
+  "name": "Pilot",
+  "isExclusive": true,
+  "likesNumber": 1000,
+  "reviewed": true,
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:00:00.000Z"
+}
+```
+
+#### Create Episode
+```http
+POST /episodes
+```
+Request Body:
+```json
+{
+  "name": "Pilot",
+  "isExclusive": true,
+  "likesNumber": 0,
+  "reviewed": false
+}
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c90",
+  "name": "Pilot",
+  "isExclusive": true,
+  "likesNumber": 0,
+  "reviewed": false,
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:00:00.000Z"
+}
+```
+
+#### Update Episode
+```http
+PATCH /episodes/:id
+```
+Request Body:
+```json
+{
+  "name": "Pilot Episode",
+  "isExclusive": true,
+  "likesNumber": 1000,
+  "reviewed": true
+}
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c90",
+  "name": "Pilot Episode",
+  "isExclusive": true,
+  "likesNumber": 1000,
+  "reviewed": true,
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:30:00.000Z"
+}
+```
+
+#### Delete Episode
+```http
+DELETE /episodes/:id
+```
+Response:
+```json
+{
+  "_id": "60d21b4667d0d8992e610c90",
+  "name": "Pilot",
+  "isExclusive": true,
+  "likesNumber": 1000,
+  "reviewed": true,
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:00:00.000Z"
+}
+```
+
+## Error Responses
+
+All endpoints may return the following error responses:
+
+### Not Found (404)
+```json
+{
+  "statusCode": 404,
+  "message": "Home screen configuration with ID 60d21b4667d0d8992e610c85 not found",
+  "error": "Not Found"
+}
+```
+
+### Bad Request (400)
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid request body",
+  "error": "Bad Request"
+}
+```
+
+## Environment Setup
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Set up environment variables:
+```bash
+cp .env.example .env
+```
+
+3. Start the server:
+```bash
+npm run start:dev
+```
+
+The API will be available at `http://localhost:4000`.
