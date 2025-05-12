@@ -1,146 +1,99 @@
-import React from 'react';
 import styled from 'styled-components';
-import { HomeScreen } from '../../types/homeScreen';
-import { ContentItem } from '../../types/contentItem';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+import { HomeScreen } from '../../store/slices/homeScreenSlice';
+import {
+  DetailModal,
+  DetailModalContent,
+  DetailModalTitle,
+  DetailCloseButton,
+} from '../../components/HomeScreen/styles';
 
 interface MobilePreviewModalProps {
   homeScreen: HomeScreen;
   onClose: () => void;
 }
 
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background: #1a1a1a;
+const PreviewContainer = styled.div`
+  max-width: 375px;
+  margin: 0 auto;
+  background-color: #1a1a1a;
+  min-height: 667px;
   border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 1.5rem;
+  overflow: hidden;
   position: relative;
+  border: 1px solid #333;
 `;
 
-const CloseButton = styled.button`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  z-index: 1;
+const Section = styled.div`
+  margin-bottom: 24px;
+  padding: 0 16px;
 `;
 
 const SectionTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 16px;
   color: #fff;
   font-family: Denike;
-  font-size: 1.2rem;
-  margin: 1.5rem 0 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #ff6642;
 `;
 
-const SliderContainer = styled.div`
-  margin-bottom: 2rem;
-`;
-
-const ContentImage = styled.img`
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
-`;
-
-const ContentTitle = styled.p`
-  color: #fff;
-  font-family: Denike;
-  margin: 0.5rem 0;
-  text-align: center;
-`;
-
-const StyledSwiper = styled(Swiper)`
-  .swiper-button-next,
-  .swiper-button-prev {
-    color: #ff6642;
+const ItemsContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  
+  &::-webkit-scrollbar {
+    height: 4px;
   }
   
-  .swiper-pagination-bullet-active {
+  &::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+  
+  &::-webkit-scrollbar-thumb {
     background: #ff6642;
+    border-radius: 2px;
   }
 `;
 
-export const MobilePreviewModal: React.FC<MobilePreviewModalProps> = ({
-  homeScreen,
-  onClose,
-}) => {
-  const renderSlider = (items: ContentItem[], title: string) => (
-    <SliderContainer>
-      <SectionTitle>{title}</SectionTitle>
-      <StyledSwiper
-        modules={[Navigation, Pagination]}
-        spaceBetween={10}
-        slidesPerView={title === 'Recommendations' ? 1 : 3}
-        navigation
-        pagination={{ clickable: true }}
-        breakpoints={{
-          320: {
-            slidesPerView: title === 'Recommendations' ? 1 : 1,
-            spaceBetween: 10
-          },
-          480: {
-            slidesPerView: title === 'Recommendations' ? 1 : 2,
-            spaceBetween: 10
-          },
-          768: {
-            slidesPerView: title === 'Recommendations' ? 1 : 3,
-            spaceBetween: 10
-          }
-        }}
-      >
-        {items.map((item) => (
-          <SwiperSlide key={item._id}>
-            <ContentImage
-              src={item.introImage}
-              alt={item.name}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = 'https://via.placeholder.com/400x200?text=No+Image';
-              }}
-            />
-            <ContentTitle>{item.name}</ContentTitle>
-          </SwiperSlide>
-        ))}
-      </StyledSwiper>
-    </SliderContainer>
-  );
+const ItemCard = styled.div`
+  min-width: 150px;
+  max-width: 150px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 16px;
+  border-radius: 6px;
+  color: #fff;
+  border: 1px solid #333;
+  transition: all 0.2s;
 
+  &:hover {
+    border-color: #ff6642;
+  }
+`;
+
+export const MobilePreviewModal = ({ homeScreen, onClose }: MobilePreviewModalProps) => {
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <CloseButton onClick={onClose}>&times;</CloseButton>
-        {renderSlider(homeScreen.recomendaciones, 'Recommendations')}
-        {renderSlider(homeScreen.topCharts, 'Top Charts')}
-        {renderSlider(homeScreen.mostTrending, 'Most Trending')}
-        {renderSlider(homeScreen.mostPopular, 'Most Popular')}
-      </ModalContent>
-    </ModalOverlay>
+    <DetailModal onClick={onClose}>
+      <DetailModalContent onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+        <DetailModalTitle>Mobile Preview</DetailModalTitle>
+        <DetailCloseButton onClick={onClose}>&times;</DetailCloseButton>
+        <PreviewContainer>
+          {[...homeScreen.sections]
+            .sort((a, b) => a.order - b.order)
+            .map((section) => (
+              <Section key={section.name}>
+                <SectionTitle>{section.name}</SectionTitle>
+                <ItemsContainer>
+                  {section.items.map((item) => (
+                    <ItemCard key={item._id}>
+                      {item.title || item.name}
+                    </ItemCard>
+                  ))}
+                </ItemsContainer>
+              </Section>
+            ))}
+        </PreviewContainer>
+      </DetailModalContent>
+    </DetailModal>
   );
 }; 

@@ -1,12 +1,15 @@
 import { ContentItem } from './contentItem';
 
+export interface Section {
+  name: string;
+  order: number;
+  items: any[];
+}
+
 export interface HomeScreen {
   _id: string;
+  sections: Section[];
   isActive: boolean;
-  recomendaciones: ContentItem[];
-  topCharts: ContentItem[];
-  mostTrending: ContentItem[];
-  mostPopular: ContentItem[];
   createdAt: string;
   updatedAt: string;
 }

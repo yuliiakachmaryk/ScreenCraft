@@ -2,18 +2,21 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
 @Schema()
+export class Section {
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true })
+  order: number;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'ContentItem' }] })
+  items: Types.ObjectId[];
+}
+
+@Schema()
 export class HomeScreenConfig extends Document {
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'ContentItem' }] })
-  recomendaciones: Types.ObjectId[];
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'ContentItem' }] })
-  topCharts: Types.ObjectId[];
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'ContentItem' }] })
-  mostTrending: Types.ObjectId[];
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'ContentItem' }] })
-  mostPopular: Types.ObjectId[];
+  @Prop({ type: [Section], default: [] })
+  sections: Section[];
 
   @Prop({ required: true, default: false })
   isActive: boolean;

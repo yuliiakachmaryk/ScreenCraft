@@ -126,7 +126,7 @@ export const EpisodeForm = ({
           {initialData ? 'Save Changes' : 'Create Episode'}
         </DetailButton>
         <DetailButton type="button" onClick={onCancel}>
-          Cancel
+          OK
         </DetailButton>
       </ButtonGroup>
     </Form>

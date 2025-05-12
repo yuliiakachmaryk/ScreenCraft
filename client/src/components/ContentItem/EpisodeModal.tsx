@@ -54,7 +54,7 @@ export const EpisodeModal = ({
           </DetailContentList>
         )}
         <DetailButton onClick={onClose} style={{ marginTop: '1rem' }}>
-          Cancel
+          OK
         </DetailButton>
       </DetailModalContent>
     </DetailModal>

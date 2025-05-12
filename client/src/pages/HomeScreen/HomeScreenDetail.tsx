@@ -9,6 +9,9 @@ import {
   addContentToSection,
   removeContentFromSection,
   setActive,
+  addSection,
+  updateSection,
+  removeSection,
 } from '../../store/slices/homeScreenSlice';
 import { fetchContentItems, setPage, setItemsPerPage } from '../../store/slices/contentItemSlice';
 import { LoadingSpinner } from '../../components/LoadingSpinner/LoadingSpinner';
@@ -24,8 +27,13 @@ import {
   DetailButton,
   DetailSections,
   DetailEmptyState,
+  DetailModal,
+  DetailModalContent,
+  DetailModalTitle,
+  DetailCloseButton,
 } from '../../components/HomeScreen/styles';
 import { MobilePreviewModal } from '../../components/HomeScreen/MobilePreviewModal';
+import { AddSectionModal } from '../../components/HomeScreen/AddSectionModal';
 
 interface ErrorResponse {
   response?: {
@@ -49,13 +57,6 @@ const getErrorMessage = (error: ErrorResponse): string => {
   return 'An unexpected error occurred';
 };
 
-const SECTIONS = {
-  RECOMMENDATIONS: 'recomendaciones',
-  TOP_CHARTS: 'topCharts',
-  MOST_TRENDING: 'mostTrending',
-  MOST_POPULAR: 'mostPopular',
-} as const;
-
 export const HomeScreenDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -78,6 +79,7 @@ export const HomeScreenDetail = () => {
   const [modalPage, setModalPage] = useState(1);
   const [modalItemsPerPage, setModalItemsPerPage] = useState(10);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showAddSectionModal, setShowAddSectionModal] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -140,8 +142,8 @@ export const HomeScreenDetail = () => {
     dispatch(fetchContentItems({ page: 1, limit: newLimit }));
   };
 
-  const handleAddContent = async (section: string) => {
-    setSelectedSection(section);
+  const handleAddContent = async (sectionName: string) => {
+    setSelectedSection(sectionName);
     setShowContentModal(true);
     dispatch(fetchContentItems({ page: 1, limit: modalItemsPerPage }));
   };
@@ -165,17 +167,64 @@ export const HomeScreenDetail = () => {
     }
   };
 
-  const handleRemoveContent = async (section: string, contentItemId: string) => {
+  const handleRemoveContent = async (sectionName: string, contentItemId: string) => {
     try {
       await dispatch(
         removeContentFromSection({
           id: homeScreen?._id || '',
           contentItemId,
-          section,
+          section: sectionName,
         })
       ).unwrap();
     } catch (err) {
       setError(getErrorMessage(err as ErrorResponse));
+    }
+  };
+
+  const handleUpdateSection = async (sectionName: string, newOrder: number) => {
+    try {
+      if (id && homeScreen) {
+        const currentSection = homeScreen.sections.find(s => s.name === sectionName);
+        if (!currentSection) {
+          throw new Error('Section not found');
+        }
+
+        const oldOrder = currentSection.order;
+        await dispatch(
+          updateSection({
+            id,
+            sectionName,
+            sectionData: { 
+              order: newOrder,
+              items: currentSection.items
+            },
+          })
+        ).unwrap();
+
+        // Refresh the home screen data to get the updated order
+        await dispatch(fetchHomeScreenById(id)).unwrap();
+        setError(null);
+      }
+    } catch (err) {
+      setError(getErrorMessage(err as ErrorResponse));
+    }
+  };
+
+  const handleRemoveSection = async (sectionName: string) => {
+    if (window.confirm(`Are you sure you want to remove the "${sectionName}" section?`)) {
+      try {
+        if (id) {
+          await dispatch(
+            removeSection({
+              id,
+              sectionName,
+            })
+          ).unwrap();
+          setError(null);
+        }
+      } catch (err) {
+        setError(getErrorMessage(err as ErrorResponse));
+      }
     }
   };
 
@@ -213,60 +262,49 @@ export const HomeScreenDetail = () => {
         </DetailActions>
       </DetailHeader>
       <DetailSections>
-        <ContentSection
-          title="Recommendations"
-          items={homeScreen.recomendaciones}
-          onAddContent={() => handleAddContent(SECTIONS.RECOMMENDATIONS)}
-          onRemoveContent={(contentId) =>
-            handleRemoveContent(SECTIONS.RECOMMENDATIONS, contentId)
-          }
-          size={100}
-          isEditing={isEditing}
-        />
-        <ContentSection
-          title="Top Charts"
-          items={homeScreen.topCharts}
-          onAddContent={() => handleAddContent(SECTIONS.TOP_CHARTS)}
-          onRemoveContent={(contentId) =>
-            handleRemoveContent(SECTIONS.TOP_CHARTS, contentId)
-          }
-          size={100}
-          isEditing={isEditing}
-        />
-        <ContentSection
-          title="Most Trending"
-          items={homeScreen.mostTrending}
-          onAddContent={() => handleAddContent(SECTIONS.MOST_TRENDING)}
-          onRemoveContent={(contentId) =>
-            handleRemoveContent(SECTIONS.MOST_TRENDING, contentId)
-          }
-          size={100}
-          isEditing={isEditing}
-        />
-        <ContentSection
-          title="Most Popular"
-          items={homeScreen.mostPopular}
-          onAddContent={() => handleAddContent(SECTIONS.MOST_POPULAR)}
-          onRemoveContent={(contentId) =>
-            handleRemoveContent(SECTIONS.MOST_POPULAR, contentId)
-          }
-          size={100}
-          isEditing={isEditing}
-        />
+        {isEditing && (
+          <DetailButton onClick={() => setShowAddSectionModal(true)}>
+            Add New Section
+          </DetailButton>
+        )}
+        {[...homeScreen.sections]
+          .sort((a, b) => a.order - b.order)
+          .map((section) => (
+            <ContentSection
+              key={section.name}
+              title={section.name}
+              items={section.items}
+              order={section.order}
+              totalSections={homeScreen.sections.length}
+              onAddContent={() => handleAddContent(section.name)}
+              onRemoveContent={(contentId) =>
+                handleRemoveContent(section.name, contentId)
+              }
+              onUpdateOrder={(newOrder) => handleUpdateSection(section.name, newOrder)}
+              onDeleteSection={() => handleRemoveSection(section.name)}
+              isEditing={isEditing}
+            />
+          ))}
       </DetailSections>
 
       {showContentModal && (
-        <ContentModal
-          contentItems={contentItems}
-          loading={contentItemsLoading}
-          onContentSelect={handleContentSelect}
-          onClose={() => setShowContentModal(false)}
-          currentPage={modalPage}
-          itemsPerPage={modalItemsPerPage}
-          total={total}
-          onPageChange={handleModalPageChange}
-          onItemsPerPageChange={handleModalItemsPerPageChange}
-        />
+        <DetailModal onClick={() => setShowContentModal(false)}>
+          <DetailModalContent onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <DetailModalTitle>Add Content</DetailModalTitle>
+            <DetailCloseButton onClick={() => setShowContentModal(false)}>&times;</DetailCloseButton>
+            <ContentModal
+              contentItems={contentItems}
+              loading={contentItemsLoading}
+              onContentSelect={handleContentSelect}
+              onClose={() => setShowContentModal(false)}
+              currentPage={modalPage}
+              itemsPerPage={modalItemsPerPage}
+              total={total}
+              onPageChange={handleModalPageChange}
+              onItemsPerPageChange={handleModalItemsPerPageChange}
+            />
+          </DetailModalContent>
+        </DetailModal>
       )}
 
       {showPreviewModal && (
@@ -274,6 +312,35 @@ export const HomeScreenDetail = () => {
           homeScreen={homeScreen}
           onClose={() => setShowPreviewModal(false)}
         />
+      )}
+
+      {showAddSectionModal && (
+        <DetailModal onClick={() => setShowAddSectionModal(false)}>
+          <DetailModalContent onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <DetailModalTitle>Add New Section</DetailModalTitle>
+            <DetailCloseButton onClick={() => setShowAddSectionModal(false)}>&times;</DetailCloseButton>
+            <AddSectionModal
+              isOpen={showAddSectionModal}
+              onClose={() => setShowAddSectionModal(false)}
+              onAdd={async (section: { name: string; order: number; items: any[] }) => {
+                try {
+                  if (id) {
+                    await dispatch(
+                      addSection({
+                        id,
+                        section,
+                      })
+                    ).unwrap();
+                    setShowAddSectionModal(false);
+                    setError(null);
+                  }
+                } catch (err) {
+                  setError(getErrorMessage(err as ErrorResponse));
+                }
+              }}
+            />
+          </DetailModalContent>
+        </DetailModal>
       )}
     </DetailContainer>
   );

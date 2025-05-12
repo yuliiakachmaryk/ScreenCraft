@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, HttpExce
 import { HomeScreenService, PaginatedResponse } from '../services/home-screen.service';
 import { HomeScreenConfig } from '../schemas/home-screen.schema';
 
-@Controller('home-screen')
+@Controller('home-screens')
 export class HomeScreenController {
   constructor(private readonly homeScreenService: HomeScreenService) {}
 
@@ -63,20 +63,45 @@ export class HomeScreenController {
     return this.homeScreenService.remove(id);
   }
 
-  @Post(':id/content-items/:contentItemId')
+  @Post(':id/sections')
+  addSection(
+    @Param('id') id: string,
+    @Body() section: { name: string; order: number; items: any[] }
+  ) {
+    return this.homeScreenService.addSection(id, section);
+  }
+
+  @Patch(':id/sections/:sectionName')
+  updateSection(
+    @Param('id') id: string,
+    @Param('sectionName') sectionName: string,
+    @Body() sectionData: { order?: number }
+  ) {
+    return this.homeScreenService.updateSection(id, sectionName, sectionData);
+  }
+
+  @Delete(':id/sections/:sectionName')
+  removeSection(
+    @Param('id') id: string,
+    @Param('sectionName') sectionName: string
+  ) {
+    return this.homeScreenService.removeSection(id, sectionName);
+  }
+
+  @Post(':id/sections/:section/content')
   addContentItem(
     @Param('id') id: string,
-    @Param('contentItemId') contentItemId: string,
-    @Body('section') section: string,
+    @Param('section') section: string,
+    @Body('contentItemId') contentItemId: string
   ) {
     return this.homeScreenService.addContentItem(id, section, contentItemId);
   }
 
-  @Delete(':id/content-items/:contentItemId')
+  @Delete(':id/sections/:section/content/:contentItemId')
   removeContentItem(
     @Param('id') id: string,
-    @Param('contentItemId') contentItemId: string,
-    @Body('section') section: string,
+    @Param('section') section: string,
+    @Param('contentItemId') contentItemId: string
   ) {
     return this.homeScreenService.removeContentItem(id, section, contentItemId);
   }

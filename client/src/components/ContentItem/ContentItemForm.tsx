@@ -273,7 +273,7 @@ export const ContentItemForm = ({
           {initialData ? 'Save Changes' : 'Create Content'}
         </DetailButton>
         <DetailButton type="button" onClick={onCancel}>
-          Cancel
+          OK
         </DetailButton>
       </ButtonGroup>
 

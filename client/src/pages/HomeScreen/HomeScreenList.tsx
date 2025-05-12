@@ -36,9 +36,17 @@ export const HomeScreenList = () => {
     dispatch(fetchHomeScreens({ page, limit }));
   }, [dispatch, page, limit]);
 
-  const handleCreateHomeScreen = async (data: Partial<HomeScreen>) => {
+  const handleCreateHomeScreen = async (data: { name: string; sections: { name: string; order: number }[] }) => {
     try {
-      await dispatch(createHomeScreen(data)).unwrap();
+      const homeScreenData: Partial<HomeScreen> = {
+        sections: data.sections.map(section => ({
+          name: section.name,
+          order: section.order,
+          items: []
+        })),
+        isActive: false
+      };
+      await dispatch(createHomeScreen(homeScreenData)).unwrap();
       setShowCreateModal(false);
       dispatch(fetchHomeScreens({ page, limit }));
     } catch (error) {
@@ -72,7 +80,10 @@ export const HomeScreenList = () => {
         {homeScreens && homeScreens.length > 0 ? (
           <>
             {homeScreens.map((screen) => (
-              <HomeScreenCard key={screen._id} screen={screen} />
+              <HomeScreenCard 
+                key={screen._id} 
+                screen={screen}
+              />
             ))}
             <PaginationContainer>
               <PaginationInfo>
@@ -121,7 +132,7 @@ export const HomeScreenList = () => {
       {showCreateModal && (
         <CreateModal
           onClose={() => setShowCreateModal(false)}
-          onCreate={() => handleCreateHomeScreen({})}
+          onCreate={handleCreateHomeScreen}
         />
       )}
     </Container>

@@ -1,7 +1,12 @@
 import axios, { AxiosError } from 'axios';
 import { ContentItem, Episode, HomeScreen, PaginatedResponse } from '../types';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+export const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:4000',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 interface ErrorResponse {
   statusCode: number;
@@ -36,15 +41,6 @@ interface UpdateEpisodeRequest {
   likesNumber?: number;
   reviewed?: boolean;
 }
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-  withCredentials: true,
-});
 
 api.interceptors.response.use(
   (response) => response,

@@ -108,7 +108,7 @@ export const ContentModal = ({
           </>
         )}
         <DetailButton onClick={onClose} style={{ marginTop: '1rem' }}>
-          Cancel
+          OK
         </DetailButton>
       </DetailModalContent>
     </DetailModal>
