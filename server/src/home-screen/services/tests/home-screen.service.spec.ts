@@ -97,7 +97,8 @@ describe('HomeScreenService', () => {
       expect(mockQuery.sort).toHaveBeenCalledWith({ isActive: -1, updatedAt: -1 });
       expect(mockQuery.skip).toHaveBeenCalledWith((page - 1) * limit);
       expect(mockQuery.limit).toHaveBeenCalledWith(limit);
-      expect(mockQuery.populate).toHaveBeenCalledTimes(4);
+      expect(mockQuery.populate).toHaveBeenCalledTimes(1);
+      expect(mockQuery.populate).toHaveBeenCalledWith('sections.items');
     });
   });
 
@@ -111,7 +112,8 @@ describe('HomeScreenService', () => {
 
       const result = await service.findOne('test-id');
       expect(result).toEqual(mockHomeScreenConfig);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
 
     it('should throw NotFoundException if configuration not found', async () => {
@@ -122,7 +124,8 @@ describe('HomeScreenService', () => {
       } as any);
 
       await expect(service.findOne('test-id')).rejects.toThrow(NotFoundException);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
   });
 
@@ -137,7 +140,8 @@ describe('HomeScreenService', () => {
 
       const result = await service.findActive();
       expect(result).toEqual(activeConfig);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
 
     it('should throw NotFoundException if no active configuration found', async () => {
@@ -148,7 +152,8 @@ describe('HomeScreenService', () => {
       } as any);
 
       await expect(service.findActive()).rejects.toThrow(NotFoundException);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
   });
 
@@ -163,7 +168,8 @@ describe('HomeScreenService', () => {
 
       const result = await service.update('test-id', updateHomeScreenDto);
       expect(result.isActive).toBe(true);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
 
     it('should throw NotFoundException if configuration not found', async () => {
@@ -174,7 +180,8 @@ describe('HomeScreenService', () => {
       } as any);
 
       await expect(service.update('test-id', {})).rejects.toThrow(NotFoundException);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
   });
 
@@ -195,7 +202,8 @@ describe('HomeScreenService', () => {
 
       const result = await service.setActive('test-id');
       expect(result.isActive).toBe(true);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
 
     it('should throw error if another screen is already active', async () => {
@@ -223,7 +231,8 @@ describe('HomeScreenService', () => {
 
       const result = await service.setActive('test-id');
       expect(result.isActive).toBe(true);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
 
     it('should throw NotFoundException if configuration not found', async () => {
@@ -240,7 +249,8 @@ describe('HomeScreenService', () => {
       } as any);
 
       await expect(service.setActive('test-id')).rejects.toThrow(NotFoundException);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
   });
 
@@ -267,7 +277,13 @@ describe('HomeScreenService', () => {
     it('should add a content item to a section', async () => {
       const updatedConfig = {
         ...mockHomeScreenConfig,
-        recomendaciones: ['content-item-id'],
+        sections: [
+          {
+            name: 'recomendaciones',
+            order: 0,
+            items: ['content-item-id']
+          }
+        ]
       };
       const mockPopulate = jest.fn().mockReturnThis();
       jest.spyOn(model, 'findByIdAndUpdate').mockReturnValue({
@@ -276,8 +292,9 @@ describe('HomeScreenService', () => {
       } as any);
 
       const result = await service.addContentItem('test-id', 'recomendaciones', 'content-item-id');
-      expect(result.recomendaciones).toContain('content-item-id');
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(result.sections.find(s => s.name === 'recomendaciones')?.items).toContain('content-item-id');
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
 
     it('should throw NotFoundException if configuration not found', async () => {
@@ -288,7 +305,8 @@ describe('HomeScreenService', () => {
       } as any);
 
       await expect(service.addContentItem('test-id', 'recomendaciones', 'content-item-id')).rejects.toThrow(NotFoundException);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
   });
 
@@ -296,7 +314,13 @@ describe('HomeScreenService', () => {
     it('should remove a content item from a section', async () => {
       const updatedConfig = {
         ...mockHomeScreenConfig,
-        recomendaciones: [],
+        sections: [
+          {
+            name: 'recomendaciones',
+            order: 0,
+            items: []
+          }
+        ]
       };
       const mockPopulate = jest.fn().mockReturnThis();
       jest.spyOn(model, 'findByIdAndUpdate').mockReturnValue({
@@ -305,8 +329,9 @@ describe('HomeScreenService', () => {
       } as any);
 
       const result = await service.removeContentItem('test-id', 'recomendaciones', 'content-item-id');
-      expect(result.recomendaciones).not.toContain('content-item-id');
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(result.sections.find(s => s.name === 'recomendaciones')?.items).not.toContain('content-item-id');
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
 
     it('should throw NotFoundException if configuration not found', async () => {
@@ -317,7 +342,8 @@ describe('HomeScreenService', () => {
       } as any);
 
       await expect(service.removeContentItem('test-id', 'recomendaciones', 'content-item-id')).rejects.toThrow(NotFoundException);
-      expect(mockPopulate).toHaveBeenCalledTimes(4);
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
+      expect(mockPopulate).toHaveBeenCalledWith('sections.items');
     });
   });
 }); 
